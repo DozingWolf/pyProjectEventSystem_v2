@@ -12,13 +12,19 @@ from loguru import logger
 
 app = Flask(__name__)
 
-# initial log and dblink
+# initial config, log and dblink
 param = ConfigParser()
 param.read('./conf/conf.ini')
 if len(param.sections()) == 0:
     logger.critical('配置文件backend.conf不存在')
     exit()
 app.runningConfig = param
+
+logger.add(param['Flask']['log'],
+           rotation=param['Flask']['log_rotation'],
+           compression=param['Flask']['log_compression'],
+           level=param['Flask']['log_level'])
+
 # check parameter
 if bool(param['DB']['sqlite']) is True:
     from sqlite3 import connect
