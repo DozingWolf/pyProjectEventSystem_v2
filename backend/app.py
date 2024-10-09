@@ -9,6 +9,7 @@ from controller.userAction import userActionBP
 from configparser import ConfigParser
 # import log
 from loguru import logger
+# from flask_loguru import logger
 
 app = Flask(__name__)
 
@@ -20,6 +21,7 @@ if len(param.sections()) == 0:
     exit()
 app.runningConfig = param
 
+logger.debug(param['Flask']['log_rotation'])
 logger.add(param['Flask']['log'],
            rotation=param['Flask']['log_rotation'],
            compression=param['Flask']['log_compression'],
