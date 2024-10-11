@@ -2,6 +2,7 @@
 from UI.loginPage_ui import Ui_fLoginPage 
 # import business logic
 from errorlist import ServerError
+from controller.dataEncrypt import TraditionalPassword 
 # import system package
 from loguru import logger
 from requests import post,get
@@ -22,7 +23,9 @@ class LoginPage(QWidget,Ui_fLoginPage):
         self.parent = parent
         self.setupUi(self)
         self.__loginUrl = ''.join(['http://',':'.join(self.parent.getServerInfo()),'/api/v1.0/login'])
-        self.__verifyCodeUrl = ''.join([':'.join(self.parent.getServerInfo()),'/api/v1.0/verifycode'])
+        self.__verifyCodeUrl = ''.join([':'.join(self.parent.getServerInfo()),'/api/v1.0/getVerifyCode'])
+        with open('./key/publicKey.pem','rb') as f:
+            self.__publicKey = f.read()
         self.leUsername.setText(self.parent.getLocalRememberUser())
         self.bind()
 
@@ -56,13 +59,14 @@ class LoginPage(QWidget,Ui_fLoginPage):
             #  'user':'csy',
             #  'auth':[('level1','menu_01'),('level2','menu_02')],
             #  'token':'1234567890'}
-
+        self.__selfChiper = TraditionalPassword()
+        self.__selfChiper.new(publicKey=self.__publicKey)
         self.__userName = self.leUsername.text()
-        self.__passWord = self.lePasswd.text()
+        self.__passWord = self.__selfChiper.rsaEncryptStringData(plainDataText=self.lePasswd.text())
         self.__verifyCode = self.leVerifyCode.text()
         self.__loginQueryHeader = {'Content-Type':'application/json'}
-        self.__loginQueryBody = {'username':self.__userName,
-                                 'password':self.__passWord,
+        self.__loginQueryBody = {'empcode':self.__userName,
+                                 'passwd':str(self.__passWord),
                                  'verifycode':self.__verifyCode}
         try:
             req = post(url=self.__loginUrl,
@@ -72,9 +76,11 @@ class LoginPage(QWidget,Ui_fLoginPage):
                 raise ServerError(message='HTTP CODE = %s'%str(req.status_code))
             rtnJsonData = req.json()
             logger.info(rtnJsonData)
-            self.__tempToken = rtnJsonData['token']
-            logger.info(type(rtnJsonData))
-            self.sendToken(self.__tempToken)
+            logger.debug(req)
+            # 这里要改成把session传递给主窗口
+            # self.__tempToken = rtnJsonData['token']
+            # logger.info(type(rtnJsonData))
+            # self.sendToken(self.__tempToken)
         except ServerError as e:
             logger.error(format_exc())
             QMessageBox.warning(self,'错误','HTTP接口错误,HTTP CODE %s'%str(req.status_code),QMessageBox.StandardButton.Ok)
