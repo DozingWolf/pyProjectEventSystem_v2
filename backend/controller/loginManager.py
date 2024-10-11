@@ -12,8 +12,6 @@ from time import time
 from .dataQualityChecker import isExistCheck,isEmptyCheck
 from .backendErrorList import EmptyJsonValue,ErrorJsonData,NoneJsonKey,VerifyCodeError,VerifyTimeoutError
 
-
-
 loginManagerBP = Blueprint('login',__name__)
 
 @loginManagerBP.route('/login',methods=['POST'])
@@ -26,6 +24,7 @@ def login():
         jsonKeyCheckList = ['empcode','passwd','verifycode']
         jsonValueNotNullCheckList = ['empcode','passwd','verifycode']
         jsonData = request.get_json()
+        logger.debug('jsonData is :')
         logger.debug(jsonData)
         # 检查json中是否存在empcode,passwd,verifycode三个key
         isExistCheck(model=jsonKeyCheckList,data=jsonData)
@@ -39,6 +38,21 @@ def login():
         # 再验证verifycode
         if jsonData['verifycode']!= session['verifyCode']:
             raise VerifyCodeError()
+        # 校验密码
+        getUserPasswdSQL = '''
+        select passwd,empname,admin from TMSTUSER where empcode = ?;'''
+        cursor = current_app.conn.cursor()
+        logger.debug(jsonData['empcode'])
+        dbRst = cursor.execute(getUserPasswdSQL,(jsonData['empcode'],))
+        userData = dbRst.fetchall()
+        logger.debug(bytes(userData[0][0]))
+
+        veriFlag = current_app.sysChiper.verifyPassword(userInputPasswd = current_app.sysChiper.rsaDecryptStringData(encryptedDataText=jsonData['passwd']
+                                                                                                                    ,privateKey=current_app.RSA2048PrivateKey),
+                                                        sysPasswd = userData[0][0])
+        logger.debug(veriFlag)
+        
+        # 通过全部校验后，将数据保存到session中
         session['logged_in'] = True
         session['currentUser'] = jsonData['empcode']
         rtnMsg = {'code':2000,'msg':'login success'}

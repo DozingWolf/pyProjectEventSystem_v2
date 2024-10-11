@@ -3,8 +3,9 @@ from flask import Flask
 from flask.blueprints import Blueprint
 # import blueprint
 from controller.loginManager import loginManagerBP
-from controller.sysInitial import sysInitialBP
 from controller.userAction import userActionBP
+# import self cipher
+from controller.dataEncrypt import TraditionalPassword
 # import config
 from configparser import ConfigParser
 # import log
@@ -34,12 +35,24 @@ if bool(param['DB']['sqlite']) is True:
 else:
     logger.critical('演示环境，其他DB连接我懒得实现，别试了')
     exit()
+
+# load public and private key
+try:
+    with open('./key/publicKey.pem','rb') as f:
+        RSA2048PublicKey = f.read()
+    with open('./key/privateKey.pem','rb') as f:
+        app.RSA2048PrivateKey = f.read()
+    app.sysChiper = TraditionalPassword()
+    app.sysChiper.new(RSA2048PublicKey)
+    del RSA2048PublicKey
+except FileNotFoundError as e:
+    logger.critical('私钥文件privateKey.pem不存在')
+    exit()
 # initial session secret key
 app.config['SECRET_KEY'] = param['Flask']['secret_key']
 
 # register blueprint
 app.register_blueprint(blueprint=loginManagerBP,url_prefix='/api/v1.0')
-app.register_blueprint(blueprint=sysInitialBP,url_prefix='/api/v1.0')
 app.register_blueprint(blueprint=userActionBP,url_prefix='/api/v1.0/User')
 
 

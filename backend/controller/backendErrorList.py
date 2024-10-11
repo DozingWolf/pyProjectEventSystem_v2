@@ -35,16 +35,16 @@ class ErrorJsonData(SelfErrorList):
 
 class VerifyCodeError(SelfErrorList):
     # 验证码错误
-    def __init__(self, message):
-        super().__init__('4004', message)
+    def __init__(self):
+        super().__init__('4004', '验证码错误','verifycode')
         self.message = '验证码错误'
     def __str__(self) -> str:
         return ''.join([self.code,': ',self.message])
     
 class VerifyTimeoutError(SelfErrorList):
     # 验证码超时错误
-    def __init__(self, message):
-        super().__init__('4005', message)
+    def __init__(self):
+        super().__init__('4005','验证码超时','verifycode')
         self.message = '验证码超时'
     def __str__(self) -> str:
         return ''.join([self.code,': ',self.message])
