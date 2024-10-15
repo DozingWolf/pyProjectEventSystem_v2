@@ -66,12 +66,12 @@
         </size>
        </property>
        <property name="text">
-        <string>用户名</string>
+        <string>用户编码</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="leUsername"/>
+      <widget class="QLineEdit" name="leUsercode"/>
      </item>
      <item>
       <spacer name="horizontalSpacer_2">
@@ -160,12 +160,19 @@
       <widget class="QLineEdit" name="leVerifyCode"/>
      </item>
      <item>
-      <widget class="QGraphicsView" name="graphicsView">
+      <widget class="QGraphicsView" name="gvVerifyCode">
        <property name="maximumSize">
         <size>
-         <width>180</width>
-         <height>60</height>
+         <width>150</width>
+         <height>30</height>
         </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pbGetVerifyCode">
+       <property name="text">
+        <string>获取验证码</string>
        </property>
       </widget>
      </item>

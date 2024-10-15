@@ -51,10 +51,10 @@ class Ui_fLoginPage(object):
 
         self.horizontalLayout.addWidget(self.label)
 
-        self.leUsername = QLineEdit(fLoginPage)
-        self.leUsername.setObjectName(u"leUsername")
+        self.leUsercode = QLineEdit(fLoginPage)
+        self.leUsercode.setObjectName(u"leUsercode")
 
-        self.horizontalLayout.addWidget(self.leUsername)
+        self.horizontalLayout.addWidget(self.leUsercode)
 
         self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
@@ -103,11 +103,16 @@ class Ui_fLoginPage(object):
 
         self.horizontalLayout_3.addWidget(self.leVerifyCode)
 
-        self.graphicsView = QGraphicsView(fLoginPage)
-        self.graphicsView.setObjectName(u"graphicsView")
-        self.graphicsView.setMaximumSize(QSize(180, 60))
+        self.gvVerifyCode = QGraphicsView(fLoginPage)
+        self.gvVerifyCode.setObjectName(u"gvVerifyCode")
+        self.gvVerifyCode.setMaximumSize(QSize(150, 30))
 
-        self.horizontalLayout_3.addWidget(self.graphicsView)
+        self.horizontalLayout_3.addWidget(self.gvVerifyCode)
+
+        self.pbGetVerifyCode = QPushButton(fLoginPage)
+        self.pbGetVerifyCode.setObjectName(u"pbGetVerifyCode")
+
+        self.horizontalLayout_3.addWidget(self.pbGetVerifyCode)
 
 
         self.verticalLayout.addLayout(self.horizontalLayout_3)
@@ -148,9 +153,10 @@ class Ui_fLoginPage(object):
     def retranslateUi(self, fLoginPage):
         fLoginPage.setWindowTitle(QCoreApplication.translate("fLoginPage", u"\u9879\u76ee\u4e8b\u4ef6\u7cfb\u7edf-\u767b\u9646\u7cfb\u7edf", None))
         self.label_4.setText(QCoreApplication.translate("fLoginPage", u"\u9879\u76ee\u4e8b\u4ef6\u7cfb\u7edf", None))
-        self.label.setText(QCoreApplication.translate("fLoginPage", u"\u7528\u6237\u540d", None))
+        self.label.setText(QCoreApplication.translate("fLoginPage", u"\u7528\u6237\u7f16\u7801", None))
         self.label_2.setText(QCoreApplication.translate("fLoginPage", u"\u5bc6   \u7801", None))
         self.label_3.setText(QCoreApplication.translate("fLoginPage", u"\u9a8c\u8bc1\u7801", None))
+        self.pbGetVerifyCode.setText(QCoreApplication.translate("fLoginPage", u"\u83b7\u53d6\u9a8c\u8bc1\u7801", None))
         self.cbRememberMe.setText(QCoreApplication.translate("fLoginPage", u"\u8bb0\u4f4f\u6211", None))
         self.pbLogin.setText(QCoreApplication.translate("fLoginPage", u"\u767b\u5f55\u7cfb\u7edf", None))
     # retranslateUi

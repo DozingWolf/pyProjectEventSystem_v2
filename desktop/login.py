@@ -9,8 +9,9 @@ from requests import post,get
 from json import dumps,loads
 from traceback import format_exc
 # import pyside
-from PySide6.QtWidgets import QWidget,QMessageBox
-from PySide6.QtCore import Signal,Slot
+from PySide6.QtWidgets import QWidget,QMessageBox,QGraphicsScene
+from PySide6.QtCore import Signal,Slot,Qt
+from PySide6.QtGui import QMouseEvent,QPixmap
 
 class LoginPage(QWidget,Ui_fLoginPage):
     sendValueToMainWindow = Signal(str)
@@ -23,10 +24,10 @@ class LoginPage(QWidget,Ui_fLoginPage):
         self.parent = parent
         self.setupUi(self)
         self.__loginUrl = ''.join(['http://',':'.join(self.parent.getServerInfo()),'/api/v1.0/login'])
-        self.__verifyCodeUrl = ''.join([':'.join(self.parent.getServerInfo()),'/api/v1.0/getVerifyCode'])
+        self.__verifyCodeUrl = ''.join(['http://',':'.join(self.parent.getServerInfo()),'/api/v1.0/getVerifyCode'])
         with open('./key/publicKey.pem','rb') as f:
             self.__publicKey = f.read()
-        self.leUsername.setText(self.parent.getLocalRememberUser())
+        self.leUsercode.setText(self.parent.getLocalRememberUser())
         self.bind()
 
     def bind(self):
@@ -35,9 +36,13 @@ class LoginPage(QWidget,Ui_fLoginPage):
         self.sendUserTokenToMain.connect(self.parent.setToken)
         self.pbLogin.clicked.connect(self.sendValue)
         self.pbLogin.clicked.connect(self.postInputDataAndVerify)
+        # self.gvVerifyCode.mousePressEvent(self.getVerifyCode) # graphicview控件暂时无法实现点击刷新验证码的效果
+        self.pbGetVerifyCode.clicked.connect(self.getVerifyCode)
+
+
 
     def sendValue(self):
-        self.sendValueToMainWindow.emit(self.leUsername.text())
+        self.sendValueToMainWindow.emit(self.leUsercode.text())
         
 
     def sendToken(self,token):
@@ -47,10 +52,31 @@ class LoginPage(QWidget,Ui_fLoginPage):
         self.close()
         self.parent.show()
 
-
-    def getVerifyCode(self):
+    def getVerifyCode(self)->None:
         # 获取验证码
-        req = get(url=self.__verifyCodeUrl)
+        try:
+            # 将http访问中的验证码图片展示在graphicsview中
+            # 1. 先获取验证码图片的二进制数据
+            self.getVerifyReq = get(url=self.__verifyCodeUrl)
+            if self.getVerifyReq.status_code!= 200:
+                raise ServerError(message='HTTP CODE = %s'%str(self.getVerifyReq.status_code))
+            # 
+            logger.debug(self.getVerifyReq)
+            logger.debug(self.getVerifyReq.cookies)
+            self.verifyPix = QPixmap()
+            self.verifyPix.loadFromData(self.getVerifyReq.content)
+            self.__scene = QGraphicsScene(self)
+            self.__scene.clear()
+            self.__pixSize = (150,30)
+            self.__scene.addPixmap(self.verifyPix)
+            # self.__scene.setSceneRect(0,0,self.__pixSize[0],self.__pixSize[1])
+            # self.gvVerifyCode.setScene(self.__scene)
+            self.gvVerifyCode.fitInView(self.__scene.sceneRect(),Qt.AspectRatioMode.KeepAspectRatio)
+            self.gvVerifyCode.show()
+
+        except Exception as e :
+            logger.error(format_exc())
+            QMessageBox.warning(self,'错误',format_exc(),QMessageBox.StandardButton.Ok)
 
     def postInputDataAndVerify(self):
         # 登录请求
@@ -61,7 +87,7 @@ class LoginPage(QWidget,Ui_fLoginPage):
             #  'token':'1234567890'}
         self.__selfChiper = TraditionalPassword()
         self.__selfChiper.new(publicKey=self.__publicKey)
-        self.__userName = self.leUsername.text()
+        self.__userName = self.leUsercode.text()
         self.__passWord = self.__selfChiper.rsaEncryptStringData(plainDataText=self.lePasswd.text())
         self.__verifyCode = self.leVerifyCode.text()
         self.__loginQueryHeader = {'Content-Type':'application/json'}
@@ -75,12 +101,10 @@ class LoginPage(QWidget,Ui_fLoginPage):
             if req.status_code != 200:
                 raise ServerError(message='HTTP CODE = %s'%str(req.status_code))
             rtnJsonData = req.json()
-            logger.info(rtnJsonData)
+            logger.debug(rtnJsonData)
             logger.debug(req)
             # 这里要改成把session传递给主窗口
-            # self.__tempToken = rtnJsonData['token']
-            # logger.info(type(rtnJsonData))
-            # self.sendToken(self.__tempToken)
+            
         except ServerError as e:
             logger.error(format_exc())
             QMessageBox.warning(self,'错误','HTTP接口错误,HTTP CODE %s'%str(req.status_code),QMessageBox.StandardButton.Ok)
