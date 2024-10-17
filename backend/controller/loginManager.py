@@ -11,6 +11,7 @@ from time import time
 
 from .dataQualityChecker import isExistCheck,isEmptyCheck
 from .backendErrorList import EmptyJsonValue,ErrorJsonData,NoneJsonKey,VerifyCodeError,VerifyTimeoutError
+from .dataEncrypt import CryptpError
 
 loginManagerBP = Blueprint('login',__name__)
 
@@ -36,7 +37,7 @@ def login():
             if time() - session['genVerifyTime'] > int(current_app.runningConfig['Flask']['verifycode_timeouts']):
                 raise VerifyTimeoutError()
         # 再验证verifycode
-        if jsonData['verifycode']!= session['verifyCode']:
+        if jsonData['verifycode'].upper()!= session['verifyCode'].upper():
             raise VerifyCodeError()
         # 校验密码
         getUserPasswdSQL = '''
@@ -45,19 +46,34 @@ def login():
         logger.debug(jsonData['empcode'])
         dbRst = cursor.execute(getUserPasswdSQL,(jsonData['empcode'],))
         userData = dbRst.fetchall()
-        logger.debug(bytes(userData[0][0]))
-
-        veriFlag = current_app.sysChiper.verifyPassword(userInputPasswd = current_app.sysChiper.rsaDecryptStringData(encryptedDataText=jsonData['passwd']
-                                                                                                                    ,privateKey=current_app.RSA2048PrivateKey),
+        # logger.debug(userData[0][0])
+        # logger.debug(jsonData['passwd'])
+        # logger.debug(type(jsonData['passwd']))
+        passwdCipher = bytes.fromhex(jsonData['passwd'])
+        # logger.debug(passwdCipher)
+        decipherPasswd = str(current_app.sysCipher.rsaDecryptStringData(encryptedDataText=passwdCipher,privateKey=current_app.RSA2048PrivateKey),encoding='utf-8')
+        # logger.debug(type(decipherPasswd))
+        veriFlag = current_app.sysCipher.verifyPassword(userInputPasswd = decipherPasswd,
                                                         sysPasswd = userData[0][0])
         logger.debug(veriFlag)
-        
+        del passwdCipher
+        del decipherPasswd
+        if veriFlag is True:
         # 通过全部校验后，将数据保存到session中
-        session['logged_in'] = True
-        session['currentUser'] = jsonData['empcode']
-        rtnMsg = {'code':2000,'msg':'login success'}
+            session['logged_in'] = True
+            session['currentUser'] = jsonData['empcode']
+            # 获取用户权限及详细信息内容，压入session
+            
+            # 还没写完
+            rtnMsg = {'code':2000,'msg':'login success'}
+            return make_response(rtnMsg)
+        else:
+            rtnMsg = make_response({'code':4000,'msg':'login failed, password error!'})
+            rtnMsg.status_code = 401
+            return rtnMsg
+    except CryptpError as e:
+        rtnMsg = {'code':e.code,'msg':e.message}
         return make_response(rtnMsg)
-
     except VerifyTimeoutError as e:
         rtnMsg = {'code':e.code,'msg':e.message}
         return make_response(rtnMsg)

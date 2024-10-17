@@ -42,8 +42,8 @@ try:
         RSA2048PublicKey = f.read()
     with open('./key/privateKey.pem','rb') as f:
         app.RSA2048PrivateKey = f.read()
-    app.sysChiper = TraditionalPassword()
-    app.sysChiper.new(RSA2048PublicKey)
+    app.sysCipher = TraditionalPassword()
+    app.sysCipher.new(RSA2048PublicKey)
     del RSA2048PublicKey
 except FileNotFoundError as e:
     logger.critical('私钥文件privateKey.pem不存在')

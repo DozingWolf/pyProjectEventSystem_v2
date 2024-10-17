@@ -44,7 +44,7 @@ class TraditionalPassword(object):
         系统变量不存储密码明文
     
     注意事项：
-        因为考虑通用性，实例化类后没有初始数据。按照Cryptp.Chiper的方案，请实例化后使用new方法提供私钥。
+        因为考虑通用性，实例化类后没有初始数据。按照Cryptp.Cipher的方案，请实例化后使用new方法提供私钥。
     '''
     def __init__(self):
         pass
@@ -93,7 +93,10 @@ class TraditionalPassword(object):
     
     def verifyPassword(self,userInputPasswd,sysPasswd):
         # 验证加盐密码
-        return check_password_hash(pwhash=userInputPasswd,password=sysPasswd)
+        self.__hashPw = userInputPasswd
+        self.__plainPw = sysPasswd
+        logger.debug(type(userInputPasswd))
+        return check_password_hash(pwhash=sysPasswd,password=userInputPasswd)
 
 if __name__ == '__main__':
     # userKeyMaker = TraditionalPassword()
@@ -110,6 +113,7 @@ if __name__ == '__main__':
     encryptedData = userKey.rsaEncryptStringData(plainDataText=data)
     logger.debug('chiper text is :')
     logger.debug(encryptedData)
+    logger.debug(type(encryptedData))
     decryptedData = userKey.rsaDecryptStringData(encryptedDataText=encryptedData,privateKey=userPrivateKey)
     logger.debug(data)
     saltPasswd = userKey.encryptPassword(passwd=data)
