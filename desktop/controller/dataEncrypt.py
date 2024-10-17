@@ -93,7 +93,7 @@ class TraditionalPassword(object):
     
     def verifyPassword(self,userInputPasswd,sysPasswd):
         # 验证加盐密码
-        return check_password_hash(pwhash=userInputPasswd,password=sysPasswd)
+        return check_password_hash(pwhash=sysPasswd,password=userInputPasswd)
 
 if __name__ == '__main__':
     # userKeyMaker = TraditionalPassword()

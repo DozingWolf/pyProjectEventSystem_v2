@@ -15,9 +15,9 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QCheckBox, QGraphicsView, QHBoxLayout,
-    QLabel, QLineEdit, QPushButton, QSizePolicy,
-    QSpacerItem, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QApplication, QCheckBox, QHBoxLayout, QLabel,
+    QLineEdit, QPushButton, QSizePolicy, QSpacerItem,
+    QVBoxLayout, QWidget)
 
 class Ui_fLoginPage(object):
     def setupUi(self, fLoginPage):
@@ -26,6 +26,10 @@ class Ui_fLoginPage(object):
         fLoginPage.resize(400, 408)
         self.verticalLayout = QVBoxLayout(fLoginPage)
         self.verticalLayout.setObjectName(u"verticalLayout")
+        self.verticalSpacer_3 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+
+        self.verticalLayout.addItem(self.verticalSpacer_3)
+
         self.label_4 = QLabel(fLoginPage)
         self.label_4.setObjectName(u"label_4")
         font = QFont()
@@ -103,39 +107,56 @@ class Ui_fLoginPage(object):
 
         self.horizontalLayout_3.addWidget(self.leVerifyCode)
 
-        self.gvVerifyCode = QGraphicsView(fLoginPage)
-        self.gvVerifyCode.setObjectName(u"gvVerifyCode")
-        self.gvVerifyCode.setMaximumSize(QSize(150, 30))
+        self.horizontalSpacer_10 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
-        self.horizontalLayout_3.addWidget(self.gvVerifyCode)
-
-        self.pbGetVerifyCode = QPushButton(fLoginPage)
-        self.pbGetVerifyCode.setObjectName(u"pbGetVerifyCode")
-
-        self.horizontalLayout_3.addWidget(self.pbGetVerifyCode)
+        self.horizontalLayout_3.addItem(self.horizontalSpacer_10)
 
 
         self.verticalLayout.addLayout(self.horizontalLayout_3)
 
         self.horizontalLayout_4 = QHBoxLayout()
         self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
-        self.horizontalSpacer_7 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.horizontalSpacer_8 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
-        self.horizontalLayout_4.addItem(self.horizontalSpacer_7)
+        self.horizontalLayout_4.addItem(self.horizontalSpacer_8)
 
-        self.cbRememberMe = QCheckBox(fLoginPage)
-        self.cbRememberMe.setObjectName(u"cbRememberMe")
+        self.qlVerifyCode = QLabel(fLoginPage)
+        self.qlVerifyCode.setObjectName(u"qlVerifyCode")
+        self.qlVerifyCode.setMaximumSize(QSize(150, 30))
 
-        self.horizontalLayout_4.addWidget(self.cbRememberMe)
+        self.horizontalLayout_4.addWidget(self.qlVerifyCode)
 
-        self.horizontalSpacer_3 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.pbGetVerifyCode = QPushButton(fLoginPage)
+        self.pbGetVerifyCode.setObjectName(u"pbGetVerifyCode")
 
-        self.horizontalLayout_4.addItem(self.horizontalSpacer_3)
+        self.horizontalLayout_4.addWidget(self.pbGetVerifyCode)
+
+        self.horizontalSpacer_9 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_4.addItem(self.horizontalSpacer_9)
 
 
         self.verticalLayout.addLayout(self.horizontalLayout_4)
 
-        self.verticalSpacer_2 = QSpacerItem(20, 71, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        self.horizontalLayout_5 = QHBoxLayout()
+        self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
+        self.horizontalSpacer_7 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_5.addItem(self.horizontalSpacer_7)
+
+        self.cbRememberMe = QCheckBox(fLoginPage)
+        self.cbRememberMe.setObjectName(u"cbRememberMe")
+
+        self.horizontalLayout_5.addWidget(self.cbRememberMe)
+
+        self.horizontalSpacer_3 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_5.addItem(self.horizontalSpacer_3)
+
+
+        self.verticalLayout.addLayout(self.horizontalLayout_5)
+
+        self.verticalSpacer_2 = QSpacerItem(17, 62, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout.addItem(self.verticalSpacer_2)
 
@@ -156,6 +177,7 @@ class Ui_fLoginPage(object):
         self.label.setText(QCoreApplication.translate("fLoginPage", u"\u7528\u6237\u7f16\u7801", None))
         self.label_2.setText(QCoreApplication.translate("fLoginPage", u"\u5bc6   \u7801", None))
         self.label_3.setText(QCoreApplication.translate("fLoginPage", u"\u9a8c\u8bc1\u7801", None))
+        self.qlVerifyCode.setText("")
         self.pbGetVerifyCode.setText(QCoreApplication.translate("fLoginPage", u"\u83b7\u53d6\u9a8c\u8bc1\u7801", None))
         self.cbRememberMe.setText(QCoreApplication.translate("fLoginPage", u"\u8bb0\u4f4f\u6211", None))
         self.pbLogin.setText(QCoreApplication.translate("fLoginPage", u"\u767b\u5f55\u7cfb\u7edf", None))

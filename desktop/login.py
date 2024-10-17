@@ -16,11 +16,16 @@ from PySide6.QtGui import QMouseEvent,QPixmap
 class LoginPage(QWidget,Ui_fLoginPage):
     sendValueToMainWindow = Signal(str)
     sendUserTokenToMain = Signal(str)
+    sendSessionToMain = Signal(str)
     sendRememberInfo = Signal(bool)
+    sendUserHeader = Signal(str)
 
     def __init__(self, parent=None) -> None:
         super().__init__()
         self.__tempToken = ''
+        self.__userSession = ''
+        self.userQueryHeader = {'Content-Type':'application/json',
+                                'Cookie':''}
         self.parent = parent
         self.setupUi(self)
         self.__loginUrl = ''.join(['http://',':'.join(self.parent.getServerInfo()),'/api/v1.0/login'])
@@ -52,6 +57,13 @@ class LoginPage(QWidget,Ui_fLoginPage):
         self.close()
         self.parent.show()
 
+    def sendSession(self,session):
+        # 发送session到主窗口
+        self.sendSessionToMain.emit(session)
+        logger.debug(self.__userSession)
+        self.close()
+        self.parent.show()
+
     def getVerifyCode(self)->None:
         # 获取验证码
         try:
@@ -60,19 +72,18 @@ class LoginPage(QWidget,Ui_fLoginPage):
             self.getVerifyReq = get(url=self.__verifyCodeUrl)
             if self.getVerifyReq.status_code!= 200:
                 raise ServerError(message='HTTP CODE = %s'%str(self.getVerifyReq.status_code))
-            # 
+            # 展示验证码图片
             logger.debug(self.getVerifyReq)
             logger.debug(self.getVerifyReq.cookies)
             self.verifyPix = QPixmap()
             self.verifyPix.loadFromData(self.getVerifyReq.content)
-            self.__scene = QGraphicsScene(self)
-            self.__scene.clear()
-            self.__pixSize = (150,30)
-            self.__scene.addPixmap(self.verifyPix)
-            # self.__scene.setSceneRect(0,0,self.__pixSize[0],self.__pixSize[1])
-            # self.gvVerifyCode.setScene(self.__scene)
-            self.gvVerifyCode.fitInView(self.__scene.sceneRect(),Qt.AspectRatioMode.KeepAspectRatio)
-            self.gvVerifyCode.show()
+            self.qlVerifyCode.setToolTip('验证码')
+            self.qlVerifyCode.setPixmap(self.verifyPix)
+            # 2. 再将cookie信息保存到headers中
+            self.userQueryHeader['Cookie'] =''.join(['session=',self.getVerifyReq.cookies.get('session'),';'])
+            logger.debug(self.userQueryHeader)
+            # 这句不能放在这里，等login的时候移到那边去
+            # self.sendSession(self.getVerifyReq.cookies.get('session'))
 
         except Exception as e :
             logger.error(format_exc())
@@ -90,13 +101,13 @@ class LoginPage(QWidget,Ui_fLoginPage):
         self.__userName = self.leUsercode.text()
         self.__passWord = self.__selfChiper.rsaEncryptStringData(plainDataText=self.lePasswd.text())
         self.__verifyCode = self.leVerifyCode.text()
-        self.__loginQueryHeader = {'Content-Type':'application/json'}
+        logger.debug(self.__passWord)
         self.__loginQueryBody = {'empcode':self.__userName,
-                                 'passwd':str(self.__passWord),
+                                 'passwd':self.__passWord.hex(),
                                  'verifycode':self.__verifyCode}
         try:
             req = post(url=self.__loginUrl,
-                       headers=self.__loginQueryHeader,
+                       headers=self.userQueryHeader,
                        data=dumps(self.__loginQueryBody))
             if req.status_code != 200:
                 raise ServerError(message='HTTP CODE = %s'%str(req.status_code))
