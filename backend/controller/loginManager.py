@@ -95,7 +95,7 @@ def login():
 def logout():
     if session.get('logged_in') is True:
         session['logged_in'] = False
-        session['currentUser'] = None
+        session.pop('currentUser')
         rtnMsg = {'code':2000,'msg':'logout success'}
     else:
         rtnMsg = {'code':2000,'msg':'already logged out'}
